@@ -76,6 +76,13 @@ from_chars_result_t<UC>
  * Credit : @mwalcott3
  */
 fastfloat_really_inline bool rounds_to_nearest() noexcept {
+#ifdef FASTFLOAT_ASSUME_ROUNDS_TO_NEAREST
+  // The caller asserts at compile time that the floating-point environment uses
+  // the default IEEE-754 round-to-nearest mode (i.e. nothing ever changes the
+  // rounding mode via fesetround()). This elides the volatile-float FCMP probe
+  // below, removing it from the Clinger fast path.
+  return true;
+#endif
   // https://lemire.me/blog/2020/06/26/gcc-not-nearest/
 #if (FLT_EVAL_METHOD != 1) && (FLT_EVAL_METHOD != 0)
   return false;
