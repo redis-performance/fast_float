@@ -483,13 +483,15 @@ parse_number_string(UC const *p, UC const *pend, parse_options_t<UC> options,
       // Otherwise, we will be ignoring the 'e'.
       p = location_of_e;
     } else {
-      while ((p != pend) && is_integer(*p)) {
+      // The check above already established that *p is a digit, so enter the
+      // loop body directly instead of re-testing the condition first.
+      do {
         uint8_t digit = uint8_t(*p - UC('0'));
         if (exp_number < 0x10000000) {
           exp_number = 10 * exp_number + digit;
         }
         ++p;
-      }
+      } while ((p != pend) && is_integer(*p));
       if (neg_exp) {
         exp_number = -exp_number;
       }
