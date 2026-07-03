@@ -270,8 +270,10 @@ loop_parse_if_eight_digits(char const *&p, char const *const pend,
   // byte-by-byte (reuses the existing 4-digit helpers). The parsed result is
   // identical either way. Historically gated to clang because gcc regressed on
   // short remainders, but that verdict predates the span-elision restructure;
-  // with the leaner hot path the 4-digit step now wins on gcc as well.
-  if ((pend - p) >= 4) {
+  // with the leaner hot path the 4-digit step now wins on gcc as well. The
+  // cheap first-byte digit test skips the wider SWAR probe when the digit run
+  // ended exactly at the loop above (e.g. an exponent marker follows).
+  if ((pend - p) >= 4 && is_integer(*p)) {
     uint32_t const val4 = read4_to_u32(p);
     if (is_made_of_four_digits_fast(val4)) {
       i = i * 10000 +
